@@ -2,7 +2,7 @@
 const express = require('express');
 
 const User = require("../models/user");
-const Wallets = require("../models/wallet");
+
 
 const bcryptjs = require("bcryptjs");
 
@@ -43,11 +43,11 @@ authRouter.post('/api/signup', async (req, res) => {
         
         res.json(user);
 
-        let wallet = new Wallets({
-            username: user.email,
-            name: user.name,
-          })
-        wallet = await wallet.save();
+        // let wallet = new Wallets({
+        //     username: user.email,
+        //     name: user.name,
+        //   })
+        // wallet = await wallet.save();
 
 
     } catch (e) {

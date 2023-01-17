@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const { productSchema } = require("./product");
+// const { productSchema } = require("./product");
 
 
 const userSchema = mongoose.Schema({
@@ -42,15 +42,15 @@ const userSchema = mongoose.Schema({
     },
 
     // cart
-    cart: [
-        {
-            product: productSchema,
-            quantity: {
-                type: Number,
-                required: true,
-            },
-        },
-    ],
+    // cart: [
+    //     {
+    //         product: productSchema,
+    //         quantity: {
+    //             type: Number,
+    //             required: true,
+    //         },
+    //     },
+    // ],
 
 });
 

@@ -9,9 +9,9 @@ const adminRouter = require('./routes/admin');
 
 // importing from files
 const authRouter = require('./routes/auth');
-const productRouter = require('./routes/product');
+
 const userRouter = require('./routes/user');
-const transactionRouter = require('./routes/transaction');
+
 
 // init 
 const PORT = process.env.PORT || 3000;
@@ -34,9 +34,8 @@ app.use(cors());
 app.use(express.json())
 app.use(authRouter);
 app.use(adminRouter);
-app.use(productRouter);
 app.use(userRouter);
-app.use(transactionRouter);
+
 
 
 
