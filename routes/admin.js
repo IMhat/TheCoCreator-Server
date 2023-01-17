@@ -1,0 +1,405 @@
+const express = require("express");
+const adminRouter = express.Router();
+const admin = require("../middlewares/admin");
+const { Product } = require("../models/product");
+const { Question } = require("../models/question");
+const { Accounts } = require("../models/accounts-connect");
+const Order = require("../models/order");
+const Tasks = require("../models/task");
+const User = require("../models/user");
+const { PromiseProvider } = require("mongoose");
+
+// Add product
+adminRouter.post("/admin/add-product", admin, async (req, res) => {
+  try {
+    const { name, description, images, quantity, price, category } = req.body;
+    let product = new Product({
+      name,
+      description,
+      images,
+      quantity,
+      price,
+      category,
+    });
+    product = await product.save();
+    res.json(product);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Get all your products
+adminRouter.get("/admin/get-products", admin, async (req, res) => {
+  try {
+    const products = await Product.find({});
+    res.json(products);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Delete the product
+adminRouter.post("/admin/delete-product", admin, async (req, res) => {
+  try {
+    const { id } = req.body;
+    let product = await Product.findByIdAndDelete(id);
+    res.json(product);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+//new orders
+
+adminRouter.get("/admin/get-new-orders", async (req, res) => {
+  try {
+   
+    
+    const orders = await Order.find({status: "0" });
+    res.json(orders);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+//proccess orders
+
+adminRouter.get("/admin/get-process-orders", async (req, res) => {
+  try {
+   
+    
+    const orders = await Order.find({status: "1" });
+    res.json(orders);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+//incoming orders
+
+adminRouter.get("/admin/get-incoming-orders", async (req, res) => {
+  try {
+   
+    
+    const orders = await Order.find({status: "2" });
+    res.json(orders);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+//complete orders 
+adminRouter.get("/admin/get-complete-orders", async (req, res) => {
+  try {
+    const orders = await Order.find({status: "3" || "4" });
+    res.json(orders);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+adminRouter.post("/admin/change-order-status",  async (req, res) => {
+  try {
+    const { id, status } = req.body;
+    let order = await Order.findById(id);
+    order.status = status;
+    order = await order.save();
+    res.json(order);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+//approved task
+adminRouter.post("/admin/change-task-status", admin, async (req, res) => {
+  try {
+    const { id, status } = req.body;
+    let task = await Tasks.findById(id);
+    task.status = status;
+    task = await task.save();
+    res.json(task);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+//updated task
+adminRouter.post("/admin/update-task", admin, async (req, res) => {
+  try {
+    const { id,title,priority,description,points,category,assignmentUser,status, createdBy, label,startDate,endDate } = req.body;
+    let task = await Tasks.findById(id);
+    task.title= title;
+    task.priority=priority;
+    task.description= description;
+    task.points= points;
+    task.category= category;
+    task.assignmentUser=assignmentUser;
+    task.status = status;
+    task.createdBy=createdBy;
+    task.label=label;
+    task.startDate=startDate;
+    task.endDate=endDate;
+    
+    task = await task.save();
+    res.json(task);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+adminRouter.get("/admin/analytics", admin, async (req, res) => {
+  try {
+    const orders = await Order.find({});
+    let totalEarnings = 0;
+
+    for (let i = 0; i < orders.length; i++) {
+      for (let x = 0; x < orders[i].products.length; x++) {
+        totalEarnings += orders[i].products[x].quantity * orders[i].products[x].product.price;
+      }
+    }
+    // CATEGORY WISE ORDER FETCHING
+    let mobileEarnings = await fetchCategoryWiseProduct("Mobiles");
+    let essentialEarnings = await fetchCategoryWiseProduct("Essentials");
+    let applianceEarnings = await fetchCategoryWiseProduct("Appliances");
+    let booksEarnings = await fetchCategoryWiseProduct("Books");
+    let fashionEarnings = await fetchCategoryWiseProduct("Fashion");
+
+    let earnings = {
+      totalEarnings,
+      mobileEarnings,
+      essentialEarnings,
+      applianceEarnings,
+      booksEarnings,
+      fashionEarnings,
+    };
+
+    res.json(earnings);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+async function fetchCategoryWiseProduct(category) {
+  let earnings = 0;
+  let categoryOrders = await Order.find({
+    "products.product.category": category,
+  });
+
+  for (let i = 0; i < categoryOrders.length; i++) {
+    for (let j = 0; j < categoryOrders[i].products.length; j++) {
+      earnings +=
+        categoryOrders[i].products[j].quantity *
+        categoryOrders[i].products[j].product.price;
+    }
+  }
+  return earnings;
+}
+
+
+// Get all backlog tasks
+
+adminRouter.get("/admin/get-backlog", admin, async (req, res) => {
+  try {
+    const tasks = await Tasks.find({status: 'backlog'});
+    res.json(tasks);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+// Get all ToDo tasks
+
+adminRouter.get("/admin/get-todo", admin, async (req, res) => {
+  try {
+    const tasks = await Tasks.find({status: 'ToDo'});
+    res.json(tasks);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+// Get all inprogress tasks
+
+adminRouter.get("/admin/get-inprogress", admin, async (req, res) => {
+  try {
+    const tasks = await Tasks.find({status: 'inprogress'});
+    res.json(tasks);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+// Get all done tasks
+
+adminRouter.get("/admin/get-done", admin, async (req, res) => {
+  try {
+    const tasks = await Tasks.find({status: 'done'});
+    res.json(tasks);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+// Get all approved tasks
+
+adminRouter.get("/admin/get-approved", admin, async (req, res) => {
+  try {
+    const tasks = await Tasks.find({status: 'approved'});
+    res.json(tasks);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Add Task
+adminRouter.post("/admin/add-task", admin, async (req, res) => {
+  try {
+    const { title, priority, description, images, points, category, assignmentUser,status,createdBy, label, startDate, endDate, } = req.body;
+    let task = new Tasks({
+      title,
+      priority,
+      description,
+      images,
+      points,
+      category,
+      assignmentUser,
+      status,
+      createdBy,
+      label,
+      startDate,
+      endDate,
+    
+    });
+    task= await task.save();
+    res.json(task);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Get all users
+
+adminRouter.get("/admin/get-users", async (req, res) => {
+  try {
+    const users = await User.find()
+    res.json(users);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+
+// add question 
+
+adminRouter.post("/admin/add-question",  async (req, res) => {
+  try {
+    const { title,  description, item } = req.body;
+    let question = new Question({
+      title,
+      description,
+      item
+    
+    });
+    question= await question.save();
+    res.json(question);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Get questions
+
+adminRouter.get("/admin/get-questions",  async (req, res) => {
+  try {
+    const questions = await Question.find();
+    res.json(questions);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// update question
+
+adminRouter.post("/admin/update-question", async (req, res) => {
+  try {
+    const { id,title, description, item } = req.body;
+    let question = await Question.findById(id);
+    question.title= title;
+    
+    question.description= description;
+    question.item= item;
+    
+    question = await question.save();
+    res.json(question);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// delete question
+
+adminRouter.post("/admin/delete-question", async (req, res) => {
+  try {
+    const { id } = req.body;
+    let question = await Question.findByIdAndDelete(id);
+    res.json(question);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+
+// accounts conectt!!
+// add account
+
+adminRouter.post("/admin/add-account",  async (req, res) => {
+  try {
+    const { title,  image, item } = req.body;
+    let account = new Accounts({
+      title,
+      image,
+      item
+    
+    });
+    account= await account.save();
+    res.json(account);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Get accounts
+
+adminRouter.get("/admin/get-accounts",  async (req, res) => {
+  try {
+    const accounts = await Accounts.find();
+    res.json(accounts);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// update account
+
+adminRouter.post("/admin/update-account", async (req, res) => {
+  try {
+    const { id,title, image, item } = req.body;
+    let account = await Accounts.findById(id);
+    account.title= title;
+    
+    account.image= image;
+    account.item= item;
+    
+    account = await account.save();
+    res.json(account);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// delete account
+
+adminRouter.post("/admin/delete-account", async (req, res) => {
+  try {
+    const { id } = req.body;
+    let account = await Accounts.findByIdAndDelete(id);
+    res.json(account);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+module.exports = adminRouter;
