@@ -1,56 +1,41 @@
-require('dotenv').config(); // load env
-
-const cors = require('cors');
-
-// importing packages 
 const express = require('express');
-const mongoose = require('mongoose');
-const adminRouter = require('./routes/admin');
+const path = require('path');
+require('dotenv').config();
 
-// importing from files
-const authRouter = require('./routes/auth');
+// DB config
+const { dbConnection } = require('./database/config').dbConnection();
 
-const userRouter = require('./routes/user');
-
-
-// init 
-const PORT = process.env.PORT || 3000;
+// App de Express
 const app = express();
-const DB = process.env.DB_URL;
+
+// Lectura y parseo del body
+app.use(express.json());
+
+// Node Server
+const server = require('http').createServer(app);
+module.exports.io = require('socket.io')(server);
+require('./sockets/socket');
+
+// Path público
+const publicPath = path.resolve(__dirname, 'public');
+app.use(express.static(publicPath));
+
+var cors = require('cors');
 
 
-app.all('*', function(req, res, next){
-    res.header("Access-Control-Allow-Origin", '*');
-    res.header("Access-Control-Allow-Headers", 'X-Requested-With');
-    next();
-});
-
+app.options('*', cors());
 app.use(cors());
 
-// origin: 'https://vocal-pastelito-f96590.netlify.app',
-
-// middleware
-app.use(cors());
-app.use(express.json())
-app.use(authRouter);
-app.use(adminRouter);
-app.use(userRouter);
+// Mis rutas
+app.use('/api/login', require('./routes/auth'));
+app.use('/api/usuarios', require('./routes/usuarios'));
+app.use('/api/mensajes', require('./routes/mensajes'));
 
 
+server.listen(process.env.PORT, (err) => {
 
+    if (err) throw new Error(err);
 
+    console.log('Servidor corriendo en puerto', process.env.PORT);
 
-// connection to mongoDB
-mongoose
-    .connect(DB)
-    .then(() => {
-        console.log('connection successful');
-    })
-    .catch((e) => {
-        console.log(e); 
-    });
-
-
-app.listen(PORT, ()=> {
-    console.log(`connected at port ${PORT}`);
 });
