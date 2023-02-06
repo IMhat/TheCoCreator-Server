@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SocketServer</title>
 </head>
-
 <body>
     <h1>Acceso denegado</h1>
 
@@ -24,11 +22,14 @@
         });
 
 
-        socket.on('mensaje', function(payload) {
-            console.log('Escuhando:', payload);
+        socket.emit('mensaje', { nombre: '' } );
+
+        socket.on('mensaje', function( payload ){
+            console.log('Escuhando:', payload );
         });
+
+
     </script>
 
 </body>
-
 </html>

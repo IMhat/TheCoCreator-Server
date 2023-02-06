@@ -1,17 +1,16 @@
 /*
-
-    path: api/usuarios
+    paht: /api/usuarios
 
 */
-
 const { Router } = require('express');
-const { validarJWT } = require('../middlewares/validar-jwt');
-const { getUsuarios, getAccountsConnect, getQuestionPersonality } = require('../controllers/usuarios');
+
+const { validarJwt } = require('../middlewares/validar-jwt');
+const { getUsuarios, getAccountsConnect, getQuestionPersonality } = require('../controller/usuarios');
 
 const router = Router();
 
-router.get('/', validarJWT, getUsuarios);
-router.get('/onboardin/get-accounts', validarJWT, getAccountsConnect);
-router.get('/onboardin/get-questionPersonality', validarJWT, getQuestionPersonality);
+router.get('/', validarJwt, getUsuarios);
+router.get('/onboardin/get-accounts', validarJwt, getAccountsConnect);
+router.get('/onboardin/get-questionPersonality', validarJwt, getQuestionPersonality);
 
 module.exports = router;

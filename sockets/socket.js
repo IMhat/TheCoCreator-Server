@@ -1,44 +1,42 @@
-const { io } = require('../index');
+const {
+  usuarioConectado,
+  usuarioDesconectado,
+  constGuardarMsg,
+} = require('../controller/socket');
 const { comprobarJWT } = require('../helpers/jwt');
-const { usuarioConectado, usuarioDesconectado, grabarMensaje } = require('../controllers/socket');
-
+const { io } = require('../index');
 
 // Mensajes de Sockets
-io.on('connection', client => {
+io.on('connection', (client) => {
+  //console.log(client.handshake.headers['x-token'], 'hand');
 
-    // console.log(client);
+  const [valido, uid] = comprobarJWT(client.handshake.headers['x-token']);
 
-    const [valido, uid] = comprobarJWT(client.handshake.query['x-token'] || client.handshake.headers['x-token']);
+  if (!valido) {
+    return client.disconnect();
+  }
 
-    // Verificar autenticacion
-    if (!valido) return client.disconnect();
+  console.log('Cliente autenticado');
+  usuarioConectado(uid);
 
-    // Cliente autenticado
-    usuarioConectado(uid);
-    // usuarioConectado(uid, fcmToken);
+  //sala global
+  client.join(uid);
+  //Escuchar mensaje personal
+  client.on('mensaje-personal', async (payload) => {
+    console.log(payload);
+    await constGuardarMsg(payload);
+    io.to(payload.para).emit('mensaje-personal', payload);
+  });
 
-    // Ingresar al usuario a una sala especifica
-    // Sala global
-    client.join(uid);
+  client.on('disconnect', () => {
+    usuarioDesconectado(uid);
+    console.log('Cliente desconectado');
+  });
 
-    client.on('usuario-conectado', async(payload) => {
-        io.emit('usuario-conectado', payload);
-    });
+  // client.on('mensaje', ( payload ) => {
+  //     console.log('Mensaje', payload);
 
-    // Escuchar del cliente el mensaje-personal
-    client.on('mensaje-personal', async(payload) => {
+  //     io.emit( 'mensaje', { admin: 'Nuevo mensaje' } );
 
-        await grabarMensaje(payload);
-
-        io.to(payload.para).emit('mensaje-personal', payload);
-    });
-
-    client.on('disconnect', () => {
-        usuarioDesconectado(uid);
-
-        io.emit('usuario-desconectado', uid);
-        console.log('Cliente desconectado!!');
-    });
-
-
+  // });
 });

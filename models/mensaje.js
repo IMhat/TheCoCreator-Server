@@ -1,33 +1,29 @@
 const { Schema, model } = require('mongoose');
 
-
-const MensajeSchema = Schema({
-
+const MensajeSchema = Schema(
+  {
     de: {
-        type: Schema.Types.ObjectId,
-        ref: 'Usuario',
-        required: true
+      type: Schema.Types.ObjectId,
+      ref: 'Usuario',
+      require: true,
     },
 
     para: {
-        type: Schema.Types.ObjectId,
-        ref: 'Usuario',
-        required: true
+      type: Schema.Types.ObjectId,
+      ref: 'Usuario',
+      require: true,
     },
-
     mensaje: {
-        type: String,
-        required: true
-    }
+      type: String,
 
+      require: true,
+    },
+  },
+  { timestamps: true }
+);
 
-}, {
-    timestamps: true
+MensajeSchema.method('toJSON', function () {
+  const { __v, _id, ...object } = this.toObject();
+  return object;
 });
-
-MensajeSchema.method('toJSON', function() {
-    const { __v, _id, ...object } = this.toObject();
-    return object;
-});
-
 module.exports = model('Mensaje', MensajeSchema);

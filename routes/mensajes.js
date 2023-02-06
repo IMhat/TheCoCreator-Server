@@ -1,15 +1,14 @@
 /*
-    path: api/mensajes
+    path: /api/mensajes
+
 */
-
-
 const { Router } = require('express');
-const { validarJWT } = require('../middlewares/validar-jwt');
-const { obtenerChat } = require('../controllers/mensajes');
+const { obtenerChat } = require('../controller/mensajes');
 
+const { validarJwt } = require('../middlewares/validar-jwt');
 
 const router = Router();
 
-router.get('/:de', validarJWT, obtenerChat);
+router.get('/:de', validarJwt, obtenerChat);
 
 module.exports = router;
