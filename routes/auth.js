@@ -1,35 +1,29 @@
 /*
-    paht: /api/login
+
+    path: api/login
 
 */
+
 const { Router } = require('express');
+const { crearUsuario, login, renewToken } = require('../controller/auth');
 const { check } = require('express-validator');
-const { crearUsuario, loginUser, renewToken } = require('../controller/auth');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJwt } = require('../middlewares/validar-jwt');
 
 const router = Router();
 
-router.post(
-  '/new',
-  [
-    check('name', 'el nombre es obligatorio').not().isEmpty(),
-    check('password', 'el password es obligatorio').not().isEmpty(),
-    check('email', 'el email es obligatorio').isEmail(),
-    validarCampos,
-  ],
-  crearUsuario
-);
+router.post('/new', [
+    check('nombre', 'El nombre es obligatorio').not().isEmpty(),
+    check('email').not().isEmpty().withMessage('El email es obligatorio').isEmail().withMessage('El email es inválido'),
+    check('password').not().isEmpty().withMessage('El password es obligatorio').isLength({ 'min': 6 }).withMessage('El password debe contener por lo menos 6 caracteres'),
+    validarCampos
+], crearUsuario);
 
-router.post(
-  '/',
-  [
-    check('email', 'el email es obligatorio').isEmail(),
-    check('password', 'el password es obligatorio').not().isEmpty(),
-    validarCampos,
-  ],
-  loginUser
-);
+router.post('/', [
+    check('email').not().isEmpty().withMessage('El email es obligatorio').isEmail().withMessage('El email es inválido'),
+    check('password').not().isEmpty().withMessage('El password es obligatorio'),
+    validarCampos
+], login);
 
 router.get('/renew', validarJwt, renewToken);
 
