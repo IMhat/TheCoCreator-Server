@@ -1,6 +1,3 @@
-const { response} = require('express');
-
-const axios = require('axios').default;
 
 const bcrypt = require('bcryptjs');
 const Usuario = require('../models/usuario');
