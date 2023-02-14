@@ -19,11 +19,18 @@ const server = require('http').createServer(app);
 module.exports.io = require('socket.io')(server);
 require('./sockets/socket');
 
+
+// middleware
+app.use('/api/uploads', express.static('uploads'));   // Make uploads folder to make it accessible from browser
+app.use(express.json());    // For Json Data
+
 // Rutas
 
 app.use('/api/login', require('./routes/auth'));
 app.use('/api/usuarios', require('./routes/usuarios'));
 app.use('/api/mensajes', require('./routes/mensajes'));
+app.use('/api/blogPost', require('./routes/blogpost'));
+app.use('/api/profile', require('./routes/profile'));
 
 // Path público
 const publicPath = path.resolve(__dirname, 'public');
