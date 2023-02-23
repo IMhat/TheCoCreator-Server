@@ -110,8 +110,39 @@ const renewToken = async(req, res = response) => {
   });
 };
 
+const update1 = async(req, res = response) => {
+    const { businessName, business, roles, employees } = req.body;
+    const uid = req.uid;
+
+  try {
+   
+    let usuario = await Usuario.findById(uid);
+
+    usuario.business= business;
+    usuario.businessName = businessName;
+    usuario.employees= employees;
+    usuario.roles= roles;
+    
+
+    usuario = await usuario.save();
+
+      res.status(200).json({
+      ok: true,
+      msg: 'ok',
+      usuario,
+    //   token
+    
+  });
+
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+
+};
+
 module.exports = {
   crearUsuario,
   login,
-  renewToken
+  renewToken,
+  update1
 };

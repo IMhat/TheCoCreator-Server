@@ -5,7 +5,7 @@
 */
 
 const { Router } = require('express');
-const { crearUsuario, login, renewToken } = require('../controller/auth');
+const { crearUsuario, login, renewToken, update1 } = require('../controller/auth');
 const { check } = require('express-validator');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJwt } = require('../middlewares/validar-jwt');
@@ -24,6 +24,16 @@ router.post('/', [
     check('password').not().isEmpty().withMessage('El password es obligatorio'),
     validarCampos
 ], login);
+
+// router.post('/update', [
+//     check('businessName', 'El nombre es obligatorio').not,
+//     check('business').not().isEmpty().withMessage('business es obligatorio'),
+//     check('employees').not().isEmpty().withMessage('employees es obligatorio'),
+//     validarCampos
+// ], update1);
+
+router.post('/update',validarJwt, update1);
+
 
 router.get('/renew', validarJwt, renewToken);
 

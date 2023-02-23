@@ -81,6 +81,17 @@ router.route('/getOwnBlogs').get(validarJwt, async (req, res) => {
     });
 });
 
+router.get("/getAllBlogs", async (req, res, next) => {
+    try {
+      const blogs = await BlogPost.find({});
+      res.status(200).json({ data: blogs });
+    } catch (err) {
+      res.status(500).json({ msg: err.message });
+      next(err);
+    }
+  });
+  
+
 router.route('/getOtherBlogs').get(validarJwt, async (req, res) => {
     const uid = req.uid;
         const usuario = await Usuario.findById(uid); 

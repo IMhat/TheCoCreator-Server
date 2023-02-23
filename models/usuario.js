@@ -21,6 +21,22 @@ const UsuarioSchema = Schema({
     type: Boolean,
     default: false,
   },
+  businessName: {
+    type: String,
+    default: 'a'
+  },
+  business: {
+    type: String,
+    default: 'a'
+  },
+  roles: {
+    type: String,
+    default: 'a'
+  },
+  employees: {
+    type: String,
+    default: 'a'
+  },
 });
 
 UsuarioSchema.method('toJSON', function () {
