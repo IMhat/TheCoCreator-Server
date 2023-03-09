@@ -36,6 +36,29 @@ const getAccountsConnect = async (req, res = response)=>{
 }
 
 
+
+
+const postAccountsConnect = async (req, res = response) => {
+  try {
+    const { title, image, item } = req.body;
+
+
+    let accounts = new Accounts({
+      title,
+      image,
+      item
+
+    });
+    
+    accounts= await accounts.save();
+    res.json(accounts);
+    
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+}
+
+
 //get question
 const getQuestionPersonality = async (req, res = response)=>{
   try {
@@ -44,6 +67,27 @@ const getQuestionPersonality = async (req, res = response)=>{
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
+}
+
+//post question
+const postQuestionPersonality = async (req, res = response) => {
+  try {
+    const { title, description, item } = req.body;
+
+
+    let questions = new Question({
+      title,
+      description,
+      item
+
+    });
+    
+    questions= await questions.save();
+    res.json(questions);
+    
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 }
 
 
@@ -120,7 +164,9 @@ const getQuickbooksTransaction = async (req, res = response) => {
 module.exports = {
   getUsuarios,
   getAccountsConnect,
+  postAccountsConnect,
   getQuestionPersonality,
+  postQuestionPersonality,
   postQuickbooksBalance,
   getQuickbooksBalance,
   getQuickbooksTransaction,
